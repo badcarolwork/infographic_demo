@@ -1,0 +1,134 @@
+// Layout tokens — theme colors (--theme-*) are injected on :host via JS
+$faq-max-width: 48rem;
+$faq-section-max-width: 72rem;
+$faq-padding: 1.5rem;
+$faq-item-gap: 0.75rem;
+$faq-breakpoint-mobile: 768px;
+
+:host {
+  display: block;
+  width: 100%;
+  color: var(--theme-text-color);
+
+  .faq {
+    width: 100%;
+    max-width: $faq-section-max-width;
+    margin: 0 auto;
+    padding: $faq-padding;
+
+    &__header {
+      max-width: $faq-max-width;
+      margin: 0 auto 1.75rem;
+      text-align: center;
+    }
+
+    &__heading {
+      margin: 0 0 0.75rem;
+      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      line-height: 1.15;
+    }
+
+    &__description {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.125rem);
+      line-height: 1.55;
+      opacity: 0.9;
+    }
+
+    &__list {
+      display: flex;
+      flex-direction: column;
+      gap: $faq-item-gap;
+      max-width: $faq-max-width;
+      margin: 0 auto;
+    }
+
+    &__item {
+      border: 1px solid color-mix(in srgb, var(--theme-accent-color) 25%, transparent);
+      border-radius: 0.75rem;
+      background: color-mix(in srgb, var(--theme-overlay-color) 35%, transparent);
+      overflow: hidden;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &--open {
+        border-color: color-mix(in srgb, var(--theme-accent-color) 45%, transparent);
+        box-shadow: 0 6px 20px color-mix(in srgb, var(--theme-accent-color) 12%, transparent);
+      }
+    }
+
+    &__question {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      width: 100%;
+      padding: 1rem 1.125rem;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: clamp(0.9375rem, 2vw, 1.0625rem);
+      font-weight: 600;
+      line-height: 1.4;
+      text-align: left;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: color-mix(in srgb, var(--theme-accent-color) 10%, transparent);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--theme-accent-color);
+        outline-offset: -2px;
+      }
+    }
+
+    &__question-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &__icon {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 1.25rem;
+      height: 1.25rem;
+      color: var(--theme-accent-color);
+
+      &::before {
+        content: '';
+        display: block;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+        transform-origin: center;
+      }
+    }
+
+    &__answer {
+      height: 0;
+      overflow: hidden;
+      opacity: 0;
+    }
+
+    &__answer-inner {
+      padding: 0 1.125rem 1rem;
+      font-size: clamp(0.9375rem, 1.8vw, 1rem);
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+
+    &__answer-text {
+      margin: 0;
+    }
+
+    @media (max-width: $faq-breakpoint-mobile) {
+      padding: 1rem;
+    }
+  }
+}

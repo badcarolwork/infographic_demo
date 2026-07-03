@@ -1,0 +1,215 @@
+{
+  "meta": {
+    "title": "How an EV Car Works",
+    "subtitle": "From stored electricity to motion — and back again",
+    "theme": "theme-ev"
+  },
+  "nav": [
+    { "label": "Battery", "target": "detail-battery-pack" },
+    { "label": "Motor", "target": "detail-electric-motor" },
+    { "label": "Charging", "target": "detail-onboard-charger" },
+    {
+      "label": "Regenerative Braking",
+      "target": "timeline-regenerative-braking"
+    },
+    { "label": "Comparison", "target": "comparison" },
+    { "label": "Maintenance Steps", "target": "steps" }
+  ],
+  "hero": {
+    "title": "How an Electric Vehicle Works",
+    "subtitle": "Explore how energy moves from the battery pack through the motor to the wheels — and how regen braking sends power back",
+    "backgroundAsset": "assets/testing.mp4",
+    "media": {
+      "type": "video",
+      "src": "assets/testing.mp4",
+      "alt": "How an Electric Vehicle Works"
+    }
+  },
+  "timeline": [
+    {
+      "id": "timeline-battery-storage",
+      "label": "Step 1",
+      "title": "Battery Pack Stores Energy",
+      "description": "Thousands of lithium-ion cells wired in series and parallel store direct current (DC) electricity. The battery management system monitors cell voltage and temperature to keep the pack safe and efficient.",
+      "asset": "assets/timeline-battery-storage.svg"
+    },
+    {
+      "id": "timeline-inverter-conversion",
+      "label": "Step 2",
+      "title": "Inverter Converts DC to AC",
+      "description": "The inverter switches the battery's DC output into three-phase alternating current (AC) at precisely controlled frequency and amplitude. This AC waveform is what the traction motor needs to spin smoothly at any speed.",
+      "asset": "assets/timeline-inverter-conversion.svg"
+    },
+    {
+      "id": "timeline-motor-spin",
+      "label": "Step 3",
+      "title": "Electric Motor Spins",
+      "description": "The AC current creates a rotating magnetic field inside the permanent-magnet or induction motor, producing torque almost instantly. Unlike a gasoline engine, peak torque is available from zero RPM — which is why EVs feel quick off the line.",
+      "asset": "assets/timeline-motor-spin.svg"
+    },
+    {
+      "id": "timeline-power-to-wheels",
+      "label": "Step 4",
+      "title": "Power Delivered to the Wheels",
+      "description": "Motor torque passes through a single-speed reduction gearbox to the drive axles and wheels. Most EVs use one motor per axle; high-performance models may use two or four motors for all-wheel drive and torque vectoring.",
+      "asset": "assets/timeline-power-to-wheels.svg"
+    },
+    {
+      "id": "timeline-regenerative-braking",
+      "label": "Step 5",
+      "title": "Regenerative Braking Recovers Energy",
+      "description": "When you lift off the accelerator or press the brake, the motor reverses roles and acts as a generator. Kinetic energy is converted back into electricity and fed into the battery, extending range and reducing wear on the friction brakes.",
+      "asset": "assets/timeline-regenerative-braking.svg"
+    }
+  ],
+  "details": [
+    {
+      "id": "detail-battery-pack",
+      "icon": "assets/battery-pack.svg",
+      "title": "Battery Pack",
+      "summary": "A large lithium-ion pack — typically 60–100 kWh — is the EV's fuel tank, storing enough energy for 250–350 miles of driving.",
+      "fullContent": "The traction battery is made up of modules containing hundreds or thousands of individual cells. A battery management system (BMS) balances charging across cells, limits current during fast charging, and prevents overheating. Pack capacity is measured in kilowatt-hours (kWh); higher kWh means more stored energy and longer range, but also more weight and cost."
+    },
+    {
+      "id": "detail-electric-motor",
+      "icon": "assets/electric-motor.svg",
+      "title": "Electric Motor",
+      "summary": "A compact AC motor converts electrical energy into mechanical rotation with over 90% efficiency — far higher than any combustion engine.",
+      "fullContent": "Most modern EVs use permanent-magnet synchronous motors or AC induction motors mounted directly on the axle. Because electric motors deliver maximum torque from a standstill, they eliminate the need for a multi-speed transmission. A single-speed gearbox reduces motor RPM to wheel speed while keeping the motor in its most efficient operating range."
+    },
+    {
+      "id": "detail-inverter",
+      "icon": "assets/inverter.svg",
+      "title": "Inverter",
+      "summary": "The inverter is the bridge between the DC battery and the AC motor, controlling exactly how fast the motor spins.",
+      "fullContent": "Using high-power semiconductor switches (IGBTs or silicon carbide MOSFETs), the inverter rapidly pulses DC current to synthesize a smooth three-phase AC waveform. By varying the frequency and voltage of this waveform, it controls motor speed and torque with millisecond precision. The same inverter hardware also handles regenerative braking by routing generated current back to the battery."
+    },
+    {
+      "id": "detail-onboard-charger",
+      "icon": "assets/onboard-charger.svg",
+      "title": "Onboard Charger",
+      "summary": "Built into the car, the onboard charger converts household AC electricity into DC to refill the battery pack.",
+      "fullContent": "When you plug into a Level 1 (120 V) or Level 2 (240 V) outlet, alternating current from the grid passes through the onboard charger, which rectifies and steps it to the voltage the battery needs. Charging speed is limited by the charger's power rating — typically 7–11 kW for Level 2 — which is why a full charge at home takes several hours. DC fast charging bypasses the onboard charger entirely, feeding high-voltage DC directly to the battery."
+    }
+  ],
+  "comparison": {
+    "title": "Monthly Ownership Cost Comparison",
+    "description": "Compare estimated monthly ownership costs between two vehicle types.",
+    "before": {
+      "label": "Petrol Car",
+      "media": {
+        "type": "image",
+        "src": "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y2FyfGVufDB8fDB8fHww",
+        "alt": "Petrol Car"
+      },
+      "metrics": [
+        {
+          "label": "Fuel",
+          "value": "RM 450"
+        },
+        {
+          "label": "Maintenance",
+          "value": "RM 120"
+        },
+        {
+          "label": "Road Tax",
+          "value": "RM 25"
+        },
+        {
+          "label": "Total",
+          "value": "RM 595 / month"
+        }
+      ],
+      "highlights": [
+        "Higher fuel cost",
+        "Frequent servicing",
+        "More moving parts"
+      ]
+    },
+
+    "after": {
+      "label": "Electric Vehicle",
+      "media": {
+        "type": "image",
+        "src": "https://images.unsplash.com/photo-1617704548623-340376564e68?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Njd8fGV2JTIwY2FyfGVufDB8fDB8fHww",
+        "alt": "Electric Vehicle"
+      },
+      "metrics": [
+        {
+          "label": "Charging",
+          "value": "RM 120"
+        },
+        {
+          "label": "Maintenance",
+          "value": "RM 40"
+        },
+        {
+          "label": "Road Tax",
+          "value": "RM 8"
+        },
+        {
+          "label": "Total",
+          "value": "RM 168 / month"
+        }
+      ],
+      "highlights": [
+        "Lower running cost",
+        "Minimal maintenance",
+        "No engine oil"
+      ]
+    }
+  },
+  "steps": [
+    {
+      "number": 1,
+      "title": "Choose Your Charging Equipment",
+      "description": "Most EVs include a portable Level 1 cord that plugs into a standard 120 V outlet. For daily charging, install a Level 2 home charger (240 V) on a dedicated 40–60 amp circuit — it delivers 25–40 miles of range per hour versus 3–5 miles on Level 1.",
+      "asset": "assets/step-choose-charging-equipment.svg"
+    },
+    {
+      "number": 2,
+      "title": "Install a 240 V Outlet or Wall Charger",
+      "description": "Hire a licensed electrician to install a NEMA 14-50 outlet or hardwired wall charger near where you park. They will verify your electrical panel has enough capacity and pull the required permit. Installation typically costs $500–$1,500 depending on wiring distance.",
+      "asset": "assets/step-install-outlet.svg"
+    },
+    {
+      "number": 3,
+      "title": "Plug In and Set Your Schedule",
+      "description": "Connect the charging cable to your car's charge port — most EVs use a J1772 connector in North America. Use the car's app or onboard settings to schedule charging during off-peak hours when electricity rates are lowest, often overnight.",
+      "asset": "assets/step-plug-in-schedule.svg"
+    },
+    {
+      "number": 4,
+      "title": "Monitor Charging and Maintain the Setup",
+      "description": "Your car's dashboard or phone app shows charge level, estimated time to full, and energy added. Keep the charge port and connector clean, inspect the cable for wear, and have the electrician check the installation if you notice tripped breakers or slow charging speeds.",
+      "asset": "assets/step-monitor-charging.svg"
+    }
+  ],
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "description": "Quick answers to common questions about how electric vehicles work and what to expect as an owner.",
+    "allowMultipleOpen": true,
+    "items": [
+      {
+        "id": "faq-battery-lifespan",
+        "question": "How long does an EV battery last?",
+        "answer": "Most modern EV batteries are warrantied for 8 years or 100,000 miles and retain around 70–80% capacity over that period. Day-to-day charging habits, temperature, and fast-charging frequency affect longevity, but battery management systems help protect the pack over time."
+      },
+      {
+        "id": "faq-charging-time",
+        "question": "How long does it take to charge an EV?",
+        "answer": "It depends on the charger. A standard 120 V outlet adds roughly 3–5 miles of range per hour. A 240 V Level 2 home charger typically adds 25–40 miles per hour. DC fast charging can restore up to 80% in about 20–40 minutes on compatible models."
+      },
+      {
+        "id": "faq-driving-range",
+        "question": "What range can I expect on a full charge?",
+        "answer": "Most new EVs deliver 250–350 miles of EPA-rated range, though real-world results vary with speed, temperature, terrain, and climate control use. For context, the average daily commute in the U.S. is well under 40 miles."
+      },
+      {
+        "id": "faq-regenerative-braking",
+        "question": "What is regenerative braking and how does it help?",
+        "answer": "When you slow down, the electric motor runs in reverse as a generator, converting motion back into electricity stored in the battery. Regen braking extends range, reduces wear on friction brakes, and makes one-pedal driving possible in many EVs."
+      }
+    ]
+  }
+}
