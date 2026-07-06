@@ -17,10 +17,10 @@
     "id":"hero",
     "title": "How an Electric Vehicle Works",
     "subtitle": "Explore how energy moves from the battery pack through the motor to the wheels — and how regen braking sends power back",
-    "backgroundAsset": "../assets/evcar/herobg.jpg",
+    "backgroundAsset": "assets/evcar/herobg.jpg",
     "media": {
       "type": "jpg",
-      "src": "../assets/evcar/herobg.jpg",
+      "src": "assets/evcar/herobg.jpg",
       "alt": "How an Electric Vehicle Works"
     }
   },
@@ -32,7 +32,7 @@
       "label": {
         "text": "Step 1",
         "type": "img",
-        "src": "../assets/evcar/timeline1.webp"
+        "src": "assets/evcar/timeline1.webp"
       },
       "title": "Battery Pack Stores Energy",
       "description": "Thousands of lithium-ion cells wired in series and parallel store direct current (DC) electricity. The battery management system monitors cell voltage and temperature to keep the pack safe and efficient."
@@ -42,7 +42,7 @@
       "label": {
         "text": "Step 2",
         "type": "img",
-        "src": "../assets/evcar/timeline2.webp"
+        "src": "assets/evcar/timeline2.webp"
       },
       "title": "Inverter Converts DC to AC",
       "description": "The inverter switches the battery's DC output into three-phase alternating current (AC) at precisely controlled frequency and amplitude. This AC waveform is what the traction motor needs to spin smoothly at any speed."
@@ -52,7 +52,7 @@
       "label": {
         "text": "Step 3",
         "type": "img",
-        "src": "../assets/evcar/timeline3.webp"
+        "src": "assets/evcar/timeline3.webp"
       },
       "title": "Electric Motor Spins",
       "description": "The AC current creates a rotating magnetic field inside the permanent-magnet or induction motor, producing torque almost instantly. Unlike a gasoline engine, peak torque is available from zero RPM — which is why EVs feel quick off the line."
@@ -62,7 +62,7 @@
       "label": {
         "text": "Step 4",
         "type": "img",
-        "src": "../assets/evcar/timeline4.webp"
+        "src": "assets/evcar/timeline4.webp"
       },
       "title": "Power Delivered to the Wheels",
       "description": "Motor torque passes through a single-speed reduction gearbox to the drive axles and wheels. Most EVs use one motor per axle; high-performance models may use two or four motors for all-wheel drive and torque vectoring."
@@ -72,7 +72,7 @@
       "label": {
         "text": "Step 5",
         "type": "img",
-        "src": "../assets/evcar/timeline5.webp"
+        "src": "assets/evcar/timeline5.webp"
       },
       "title": "Regenerative Braking Recovers Energy",
       "description": "When you lift off the accelerator or press the brake, the motor reverses roles and acts as a generator. Kinetic energy is converted back into electricity and fed into the battery, extending range and reducing wear on the friction brakes."
@@ -84,28 +84,28 @@
     "items": [
     {
       "id": "detail-battery-pack",
-      "icon": "../assets/evcar/detail1.webp",
+      "icon": "assets/evcar/detail1.webp",
       "title": "Battery Pack",
       "summary": "A large lithium-ion pack — typically 60–100 kWh — is the EV's fuel tank, storing enough energy for 250–350 miles of driving.",
       "fullContent": "The traction battery is made up of modules containing hundreds or thousands of individual cells. A battery management system (BMS) balances charging across cells, limits current during fast charging, and prevents overheating. Pack capacity is measured in kilowatt-hours (kWh); higher kWh means more stored energy and longer range, but also more weight and cost."
     },
     {
       "id": "detail-electric-motor",
-      "icon": "../assets/evcar/detail2.webp",
+      "icon": "assets/evcar/detail2.webp",
       "title": "Electric Motor",
       "summary": "A compact AC motor converts electrical energy into mechanical rotation with over 90% efficiency — far higher than any combustion engine.",
       "fullContent": "Most modern EVs use permanent-magnet synchronous motors or AC induction motors mounted directly on the axle. Because electric motors deliver maximum torque from a standstill, they eliminate the need for a multi-speed transmission. A single-speed gearbox reduces motor RPM to wheel speed while keeping the motor in its most efficient operating range."
     },
     {
       "id": "detail-inverter",
-      "icon": "../assets/evcar/detail3.webp",
+      "icon": "assets/evcar/detail3.webp",
       "title": "Inverter",
       "summary": "The inverter is the bridge between the DC battery and the AC motor, controlling exactly how fast the motor spins.",
       "fullContent": "Using high-power semiconductor switches (IGBTs or silicon carbide MOSFETs), the inverter rapidly pulses DC current to synthesize a smooth three-phase AC waveform. By varying the frequency and voltage of this waveform, it controls motor speed and torque with millisecond precision. The same inverter hardware also handles regenerative braking by routing generated current back to the battery."
     },
     {
       "id": "detail-onboard-charger",
-      "icon": "../assets/evcar/detail4.webp",
+      "icon": "assets/evcar/detail4.webp",
       "title": "Onboard Charger",
       "summary": "Built into the car, the onboard charger converts household AC electricity into DC to refill the battery pack.",
       "fullContent": "When you plug into a Level 1 (120 V) or Level 2 (240 V) outlet, alternating current from the grid passes through the onboard charger, which rectifies and steps it to the voltage the battery needs. Charging speed is limited by the charger's power rating — typically 7–11 kW for Level 2 — which is why a full charge at home takes several hours. DC fast charging bypasses the onboard charger entirely, feeding high-voltage DC directly to the battery."
@@ -120,7 +120,7 @@
       "label": "Petrol Car",
       "media": {
         "type": "image",
-        "src": "../assets/evcar/compare-l.jpg",
+        "src": "assets/evcar/compare-l.jpg",
         "alt": "Petrol Car"
       },
       "metrics": [
@@ -152,7 +152,7 @@
       "label": "Electric Vehicle",
       "media": {
         "type": "image",
-        "src": "../assets/evcar/compare-r.jpg",
+        "src": "assets/evcar/compare-r.jpg",
         "alt": "Electric Vehicle"
       },
       "metrics": [
@@ -217,7 +217,7 @@
     ],
     "media": {
         "type": "image",
-        "src": "../assets/evcar/footer-hero.jpg",
+        "src": "assets/evcar/footer-hero.jpg",
         "alt": "Electric Vehicle"
     },
     "social": {
