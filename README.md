@@ -1,7 +1,6 @@
 # Interactive Infographic Framework
 
-A reusable, data-driven interactive infographic built with Vanilla JavaScript, Native Web Components, GSAP and SCSS.
-
+A reusable, data-driven interactive infographic built with JavaScript, Native Web Components, GSAP and SCSS.
 The project demonstrates an embeddable infographic that can be adapted to different topics by replacing the data source.
 
 ## Getting Started
@@ -24,12 +23,6 @@ Build for production:
 npm run build
 ```
 
-Preview the production build:
-
-```bash
-npm run preview
-```
-
 ---
 
 ## Features
@@ -38,11 +31,21 @@ npm run preview
 - Reusable Web Components
 - Configuration-driven content (JSON)
 - GSAP animations
-- Interactive timeline
+- Timeline in horiztal/ vertical layout
 - Detail cards with popup
-- Before/After comparison slider
+- Before/After comparison slider 
 - FAQ accordion
-- Theme support using CSS variables
+- Multiple themes
+
+### Interactions & Animations
+
+- Hero text fade-in animation (GSAP)
+- Timeline staggered reveal on scroll with InteractObserver API
+- Mouse hover transitions for Timeline icon
+- Detail cards with popup for additional information
+- Before/After image comparison with draggable slider
+- Animated metric cards revealed after slider interaction
+- FAQ accordion with expand/collapse animation
 
 ---
 
@@ -55,7 +58,5 @@ npm run preview
 ---
 
 ## Limitations
-
 - Currently demonstrates one infographic layout.
 - No backend or CMS integration.
-- THREE.js bonus task is not implemented.

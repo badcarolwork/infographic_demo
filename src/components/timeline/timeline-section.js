@@ -212,31 +212,27 @@ function renderTimelineItems(list, items, alignment) {
 }
 
 /**
- * @param {HTMLElement[]} items
+ * @param {HTMLElement} item
  */
-function runTimelineAnimation(items) {
-  if (!items.length) {
-    return;
-  }
-
-  gsap.from(items, {
-    opacity: 0,
-    y: 30,
+function runItemRevealAnimation(item) {
+  gsap.to(item, {
+    opacity: 1,
+    y: 0,
     duration: 0.6,
-    ease: "power2.out",
-    stagger: 0.15,
+    ease: 'power2.out',
+    clearProps: 'transform',
   });
 }
 
 class TimelineSection extends BaseComponent {
   /** @type {IntersectionObserver | null} */
-  #viewportObserver = null;
-
-  /** @type {boolean} */
-  #hasAnimated = false;
+  #itemObserver = null;
 
   /** @type {HTMLElement[]} */
   #animatedItems = [];
+
+  /** @type {string} */
+  #alignment = 'vertical';
 
   constructor() {
     super();
@@ -245,44 +241,49 @@ class TimelineSection extends BaseComponent {
 
   connectedCallback() {
     super.connectedCallback();
-    this.#mountViewportObserver();
+    this.#mountItemObservers();
   }
 
   #cleanupAnimation() {
-    this.#viewportObserver?.disconnect();
-    this.#viewportObserver = null;
+    this.#itemObserver?.disconnect();
+    this.#itemObserver = null;
 
     if (this.#animatedItems.length) {
       gsap.killTweensOf(this.#animatedItems);
     }
 
     this.#animatedItems = [];
-    this.#hasAnimated = false;
+    this.#alignment = 'vertical';
   }
 
-  #mountViewportObserver() {
-    this.#viewportObserver?.disconnect();
+  #mountItemObservers() {
+    this.#itemObserver?.disconnect();
 
-    const section = this.shadowRoot?.querySelector(".timeline");
-    if (!section || !this.#animatedItems.length) {
+    if (!this.#animatedItems.length || this.#alignment !== 'vertical') {
       return;
     }
 
-    this.#viewportObserver = new IntersectionObserver(
+    this.#itemObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting && !this.#hasAnimated) {
-            this.#hasAnimated = true;
-            runTimelineAnimation(this.#animatedItems);
-            this.#viewportObserver?.disconnect();
-            this.#viewportObserver = null;
+          if (!entry.isIntersecting || entry.target.dataset.revealed === 'true') {
+            continue;
           }
+
+          const item = /** @type {HTMLElement} */ (entry.target);
+          item.dataset.revealed = 'true';
+          runItemRevealAnimation(item);
+          this.#itemObserver?.unobserve(item);
         }
       },
-      { threshold: 0.15 },
+      { threshold: 0.5 },
     );
 
-    this.#viewportObserver.observe(section);
+    for (const item of this.#animatedItems) {
+      delete item.dataset.revealed;
+      gsap.set(item, { opacity: 0, y: 30 });
+      this.#itemObserver.observe(item);
+    }
   }
 
   render() {
@@ -300,6 +301,7 @@ class TimelineSection extends BaseComponent {
     root.appendChild(style);
 
     const alignment = resolveTimelineAlignment(this.data);
+    this.#alignment = alignment;
     const sectionId = resolveSectionId(this.data);
 
     if (sectionId) {
@@ -321,13 +323,21 @@ class TimelineSection extends BaseComponent {
     root.appendChild(section);
 
     if (this.isConnected) {
-      this.#mountViewportObserver();
+      this.#mountItemObservers();
     }
   }
 
   animate() {
-    if (this.isConnected && this.#animatedItems.length) {
-      runTimelineAnimation(this.#animatedItems);
+    if (!this.isConnected || !this.#animatedItems.length || this.#alignment !== 'vertical') {
+      return;
+    }
+
+    for (const item of this.#animatedItems) {
+      if (item.dataset.revealed === 'true') {
+        continue;
+      }
+      item.dataset.revealed = 'true';
+      runItemRevealAnimation(item);
     }
   }
 }

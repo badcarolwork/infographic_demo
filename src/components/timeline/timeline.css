@@ -106,6 +106,7 @@
   text-align: right;
   min-width: 0;
   max-width: 100%;
+  cursor: pointer;
 }
 :host .timeline--vertical .timeline__marker {
   grid-row: 1;
