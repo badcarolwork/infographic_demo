@@ -9,12 +9,20 @@ $detail-panel-breakpoint-desktop: 1280px;
 :host {
   display: block;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   color: var(--theme-text-color);
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
   .detail-panel {
     width: 100%;
     max-width: $detail-panel-max-width;
-    margin: 0 auto;
+    margin: 3rem auto;
     padding: $detail-panel-padding;
 
     &__header {
@@ -23,7 +31,7 @@ $detail-panel-breakpoint-desktop: 1280px;
       text-align: center;
     }
 
-    &__heading {
+    &__section-title {
       margin: 0 0 0.75rem;
       font-size: clamp(1.75rem, 4vw, 2.25rem);
       line-height: 1.15;
@@ -40,14 +48,18 @@ $detail-panel-breakpoint-desktop: 1280px;
       display: grid;
       gap: $detail-panel-gap;
       grid-template-columns: 1fr;
+      align-items: stretch;
+      min-width: 0;
     }
 
     &__card {
       position: relative;
       display: flex;
       flex-direction: column;
-      gap: 0.875rem;
-      padding: 1.25rem;
+      align-self: stretch;
+      min-width: 0;
+      min-height: 100%;
+      padding: 0;
       border: 1px solid color-mix(in srgb, var(--theme-accent-color) 25%, transparent);
       border-radius: 0.75rem;
       background: color-mix(in srgb, var(--theme-overlay-color) 35%, transparent);
@@ -71,6 +83,18 @@ $detail-panel-breakpoint-desktop: 1280px;
       z-index: 1;
       border-radius: inherit;
       background: transparent;
+      pointer-events: none;
+    }
+
+    &__body {
+      position: relative;
+      z-index: 0;
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 0.875rem;
+      min-height: 0;
+      padding: 1.25rem;
     }
 
     &__popup {
@@ -78,7 +102,8 @@ $detail-panel-breakpoint-desktop: 1280px;
       z-index: 10;
       left: 50%;
       top: 0;
-      width: min(110%, 22rem);
+      width: min(100%, 22rem);
+      max-width: calc(100vw - 2rem);
       max-height: 70vh;
       overflow-y: auto;
       padding: 1.25rem;
@@ -90,6 +115,10 @@ $detail-panel-breakpoint-desktop: 1280px;
       opacity: 0;
       visibility: hidden;
       pointer-events: none;
+
+      &[hidden] {
+        display: none !important;
+      }
 
       &--visible {
         visibility: visible;
@@ -120,9 +149,15 @@ $detail-panel-breakpoint-desktop: 1280px;
     }
 
     &__icon {
-      width: 3rem;
-      height: 3rem;
-      object-fit: contain;
+      flex: 0 0 10%;
+      width: 100%;
+      min-height: 8rem;
+      background-image: var(--icon-url);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.8;
+      border-radius: 0.75rem 0.75rem 0 0;
     }
 
     &__popup-icon {

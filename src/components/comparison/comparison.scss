@@ -3,18 +3,26 @@ $comparison-max-width: 72rem;
 $comparison-content-max-width: 48rem;
 $comparison-padding: 1.5rem;
 $comparison-breakpoint-mobile: 768px;
-$comparison-height-desktop: 40vh;
-$comparison-height-mobile: 30vh;
+$comparison-height-desktop: 60vh;
+$comparison-height-mobile: 40vh;
 
 :host {
   display: block;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   color: var(--theme-text-color);
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
   .comparison {
     width: 100%;
     max-width: $comparison-max-width;
-    margin: 0 auto;
+    margin: 3rem auto;
     padding: $comparison-padding;
 
     &__header {
@@ -23,7 +31,7 @@ $comparison-height-mobile: 30vh;
       text-align: center;
     }
 
-    &__heading {
+    &__title {
       margin: 0 0 0.75rem;
       font-size: clamp(1.75rem, 4vw, 2.25rem);
       line-height: 1.15;
@@ -168,11 +176,12 @@ $comparison-height-mobile: 30vh;
     &__metrics {
       display: grid;
       gap: 0.875rem;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       margin-bottom: 1.25rem;
     }
 
     &__metric-card {
+      min-width: 0;
       padding: 1rem;
       border: 1px solid color-mix(in srgb, var(--theme-accent-color) 25%, transparent);
       border-radius: 0.75rem;
@@ -186,6 +195,7 @@ $comparison-height-mobile: 30vh;
       font-size: 0.8125rem;
       line-height: 1.3;
       opacity: 0.85;
+      overflow-wrap: anywhere;
     }
 
     &__metric-value {
@@ -220,7 +230,13 @@ $comparison-height-mobile: 30vh;
       }
 
       &__metrics {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      &__metrics {
+        grid-template-columns: 1fr;
       }
     }
   }

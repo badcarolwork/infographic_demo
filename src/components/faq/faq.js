@@ -1,7 +1,7 @@
 import gsap from 'gsap';
 import BaseComponent from '../../core/BaseComponent.js';
-import { getTheme } from '../../core/themes.js';
 import faqStyles from './faq.scss?inline';
+import { resolveSectionId } from '../../utils/resolveSectionId.js';
 
 /**
  * @param {unknown} data
@@ -10,7 +10,6 @@ import faqStyles from './faq.scss?inline';
  *   description: string,
  *   allowMultipleOpen: boolean,
  *   items: object[],
- *   theme: string
  * }}
  */
 function resolveFaqData(data) {
@@ -20,7 +19,6 @@ function resolveFaqData(data) {
       description: '',
       allowMultipleOpen: false,
       items: [],
-      theme: '',
     };
   }
 
@@ -31,19 +29,12 @@ function resolveFaqData(data) {
     description: typeof record.description === 'string' ? record.description : '',
     allowMultipleOpen: record.allowMultipleOpen === true,
     items: Array.isArray(record.items) ? record.items : [],
-    theme: typeof record.theme === 'string' ? record.theme : '',
   };
 }
 
 /**
- * @param {Record<string, string>} theme
  * @returns {string}
  */
-function buildThemeVariables(theme) {
-  return Object.entries(theme)
-    .map(([name, value]) => `${name}: ${value};`)
-    .join('\n    ');
-}
 
 /**
  * @param {HTMLElement} panel
@@ -238,22 +229,24 @@ class FaqSection extends BaseComponent {
     const root = this.shadowRoot;
     root.replaceChildren();
 
-    const { title, description, allowMultipleOpen, items, theme: themeName } = resolveFaqData(this.data);
+    const { title, description, allowMultipleOpen, items} = resolveFaqData(this.data);
     this.#allowMultipleOpen = allowMultipleOpen;
+    
 
-    const theme = getTheme(themeName);
     const style = document.createElement('style');
     style.textContent = `
-      :host {
-        ${buildThemeVariables(theme)}
-      }
       ${faqStyles}
     `;
     root.appendChild(style);
 
     const section = document.createElement('section');
     section.className = 'faq';
-    section.id = 'faq';
+    const sectionId = resolveSectionId(this.data);
+    if (sectionId) {
+      this.id = sectionId;
+    } else {
+      this.removeAttribute('id');
+    }
 
     if (title || description) {
       const header = document.createElement('header');
@@ -261,7 +254,7 @@ class FaqSection extends BaseComponent {
 
       if (title) {
         const heading = document.createElement('h2');
-        heading.className = 'faq__heading';
+        heading.className = 'faq__title';
         heading.textContent = title;
         header.appendChild(heading);
       }

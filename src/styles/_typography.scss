@@ -1,0 +1,15 @@
+// Shared theme typography — imported by main.scss (light DOM) and adopted into
+// component shadow roots via BaseComponent (see themeTypography.js).
+
+body {
+  font-family: var(--theme-font-body);
+}
+
+:host {
+  font-family: var(--theme-font-body);
+}
+
+[class$='-title'],
+[class*='__title'] {
+  font-family: var(--theme-font-headline);
+}

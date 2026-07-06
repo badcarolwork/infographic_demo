@@ -1,12 +1,7 @@
-/**
- * Expected data shape:
- * Array<{ id, label, title, description, asset?, media? }>
- * or { items?: array, timeline?: array, theme?: string }
- */
-import gsap from 'gsap';
-import BaseComponent from '../../core/BaseComponent.js';
-import { getTheme } from '../../core/themes.js';
-import timelineStyles from './timeline.scss?inline';
+import gsap from "gsap";
+import BaseComponent from "../../core/BaseComponent.js";
+import { resolveSectionId } from "../../utils/resolveSectionId.js";
+import timelineStyles from "./timeline.scss?inline";
 
 /**
  * @param {unknown} data
@@ -17,12 +12,20 @@ function resolveItems(data) {
     return data;
   }
 
-  if (data && typeof data === 'object') {
-    if (Array.isArray(data.items)) {
-      return data.items;
+  if (data && typeof data === "object") {
+    const record = /** @type {Record<string, unknown>} */ (data);
+
+    if (Array.isArray(record.items)) {
+      return record.items;
     }
-    if (Array.isArray(data.timeline)) {
-      return data.timeline;
+
+    const timeline = record.timeline;
+    if (Array.isArray(timeline)) {
+      return timeline;
+    }
+
+    if (timeline && typeof timeline === "object" && Array.isArray(timeline.items)) {
+      return timeline.items;
     }
   }
 
@@ -33,21 +36,18 @@ function resolveItems(data) {
  * @param {unknown} data
  * @returns {string}
  */
-function resolveThemeName(data) {
-  if (data && typeof data === 'object' && !Array.isArray(data) && typeof data.theme === 'string') {
-    return data.theme;
+function resolveTimelineAlignment(data) {
+  if (
+    data &&
+    typeof data === "object" &&
+    data.meta &&
+    typeof data.meta === "object" &&
+    data.meta.timeline &&
+    typeof data.meta.timeline === "object"
+  ) {
+    return data.meta.timeline.alignment === "horizontal" ? "horizontal" : "vertical";
   }
-  return '';
-}
-
-/**
- * @param {Record<string, string>} theme
- * @returns {string}
- */
-function buildThemeVariables(theme) {
-  return Object.entries(theme)
-    .map(([name, value]) => `${name}: ${value};`)
-    .join('\n    ');
+  return "vertical";
 }
 
 /**
@@ -56,21 +56,21 @@ function buildThemeVariables(theme) {
  */
 function resolveItemMedia(item) {
   const media = item?.media;
-  if (media && typeof media === 'object' && media.type && media.src) {
+  if (media && typeof media === "object" && media.type && media.src) {
     return {
-      type: media.type === 'video' ? 'video' : 'image',
+      type: media.type === "video" ? "video" : "image",
       src: String(media.src),
-      alt: String(media.alt ?? item?.title ?? ''),
-      poster: typeof media.poster === 'string' ? media.poster : undefined,
+      alt: String(media.alt ?? item?.title ?? ""),
+      poster: typeof media.poster === "string" ? media.poster : undefined,
     };
   }
 
   const asset = item?.asset;
-  if (typeof asset === 'string' && asset) {
+  if (typeof asset === "string" && asset) {
     return {
-      type: 'image',
+      type: "image",
       src: asset,
-      alt: String(item?.title ?? ''),
+      alt: String(item?.title ?? ""),
     };
   }
 
@@ -82,9 +82,9 @@ function resolveItemMedia(item) {
  * @param {{ type: 'image' | 'video', src: string, alt: string, poster?: string }} source
  */
 function renderItemMedia(container, source) {
-  if (source.type === 'video') {
-    const video = document.createElement('video');
-    video.className = 'timeline__media-el';
+  if (source.type === "video") {
+    const video = document.createElement("video");
+    video.className = "timeline__media-el";
     video.src = source.src;
     if (source.poster) {
       video.poster = source.poster;
@@ -92,13 +92,13 @@ function renderItemMedia(container, source) {
     video.controls = true;
     video.muted = true;
     video.playsInline = true;
-    video.setAttribute('aria-label', source.alt);
+    video.setAttribute("aria-label", source.alt);
     container.appendChild(video);
     return;
   }
 
-  const img = document.createElement('img');
-  img.className = 'timeline__media-el';
+  const img = document.createElement("img");
+  img.className = "timeline__media-el";
   img.src = source.src;
   img.alt = source.alt;
   container.appendChild(img);
@@ -107,45 +107,97 @@ function renderItemMedia(container, source) {
 /**
  * @param {HTMLElement} list
  * @param {object[]} items
+ * @param {string} alignment
  * @returns {HTMLElement[]}
  */
-function renderTimelineItems(list, items) {
+function renderTimelineItems(list, items, alignment) {
   const animatedItems = [];
+  let index = 0;
 
   for (const item of items) {
     if (!item?.id || !item?.label || !item?.title || !item?.description) {
       continue;
     }
 
-    const li = document.createElement('li');
-    li.className = 'timeline__item';
+    const li = document.createElement("li");
+    li.className = "timeline__item";
     li.id = String(item.id);
 
-    const marker = document.createElement('div');
-    marker.className = 'timeline__marker';
-    const step = document.createElement('span');
-    step.className = 'timeline__step';
-    step.textContent = String(item.label);
-    marker.appendChild(step);
-    li.appendChild(marker);
+    if (alignment === "vertical") {
+      if (index % 2 === 1) {
+        li.classList.add("timeline__item--reverse");
+      }
 
-    const body = document.createElement('div');
-    body.className = 'timeline__body';
+      // badge — the pill (e.g. "January 2019"), separate from the dot on the line
+      const badge = document.createElement("div");
+      badge.className = "timeline__badge";
 
-    const title = document.createElement('h2');
-    title.className = 'timeline__title';
+      if (
+        typeof item.label === "object" &&
+        item.label.type === "img" &&
+        item.label.src
+      ) {
+        const img = document.createElement("img");
+        img.className = "timeline__badge-img";
+        img.src = String(item.label.src);
+        img.alt = String(item.label.text ?? "");
+        badge.appendChild(img);
+      } else {
+        const pill = document.createElement("span");
+        pill.className = "timeline__badge-pill";
+        pill.textContent = String(item.label);
+        badge.appendChild(pill);
+      }
+      li.appendChild(badge);
+
+      // marker — just the small dot sitting on the spine
+      const marker = document.createElement("div");
+      marker.className = "timeline__marker";
+      const dot = document.createElement("span");
+      dot.className = "timeline__dot";
+      marker.appendChild(dot);
+      li.appendChild(marker);
+    } else {
+      // horizontal: unchanged — label renders directly inside the marker
+      const marker = document.createElement("div");
+      marker.className = "timeline__marker";
+
+      if (
+        typeof item.label === "object" &&
+        item.label.type === "img" &&
+        item.label.src
+      ) {
+        const img = document.createElement("img");
+        img.className = "timeline__step-img";
+        img.src = String(item.label.src);
+        img.alt = String(item.label.text ?? "");
+        marker.appendChild(img);
+      } else {
+        const step = document.createElement("span");
+        step.className = "timeline__step";
+        step.textContent = String(item.label);
+        marker.appendChild(step);
+      }
+      li.appendChild(marker);
+    }
+
+    const body = document.createElement("div");
+    body.className = "timeline__body";
+
+    const title = document.createElement("h2");
+    title.className = "timeline__title";
     title.textContent = String(item.title);
     body.appendChild(title);
 
-    const description = document.createElement('p');
-    description.className = 'timeline__description';
+    const description = document.createElement("p");
+    description.className = "timeline__description";
     description.textContent = String(item.description);
     body.appendChild(description);
 
     const media = resolveItemMedia(item);
     if (media) {
-      const figure = document.createElement('figure');
-      figure.className = 'timeline__media';
+      const figure = document.createElement("figure");
+      figure.className = "timeline__media";
       renderItemMedia(figure, media);
       body.appendChild(figure);
     }
@@ -153,6 +205,7 @@ function renderTimelineItems(list, items) {
     li.appendChild(body);
     list.appendChild(li);
     animatedItems.push(li);
+    index += 1;
   }
 
   return animatedItems;
@@ -170,7 +223,7 @@ function runTimelineAnimation(items) {
     opacity: 0,
     y: 30,
     duration: 0.6,
-    ease: 'power2.out',
+    ease: "power2.out",
     stagger: 0.15,
   });
 }
@@ -191,9 +244,7 @@ class TimelineSection extends BaseComponent {
   }
 
   connectedCallback() {
-    if (!this.shadowRoot) {
-      this.attachShadow({ mode: 'open' });
-    }
+    super.connectedCallback();
     this.#mountViewportObserver();
   }
 
@@ -212,7 +263,7 @@ class TimelineSection extends BaseComponent {
   #mountViewportObserver() {
     this.#viewportObserver?.disconnect();
 
-    const section = this.shadowRoot?.querySelector('.timeline');
+    const section = this.shadowRoot?.querySelector(".timeline");
     if (!section || !this.#animatedItems.length) {
       return;
     }
@@ -236,7 +287,7 @@ class TimelineSection extends BaseComponent {
 
   render() {
     if (!this.shadowRoot) {
-      this.attachShadow({ mode: 'open' });
+      this.attachShadow({ mode: "open" });
     }
 
     this.#cleanupAnimation();
@@ -244,24 +295,27 @@ class TimelineSection extends BaseComponent {
     const root = this.shadowRoot;
     root.replaceChildren();
 
-    const theme = getTheme(resolveThemeName(this.data));
-    const style = document.createElement('style');
-    style.textContent = `
-      :host {
-        ${buildThemeVariables(theme)}
-      }
-      ${timelineStyles}
-    `;
+    const style = document.createElement("style");
+    style.textContent = `${timelineStyles}`;
     root.appendChild(style);
 
+    const alignment = resolveTimelineAlignment(this.data);
+    const sectionId = resolveSectionId(this.data);
+
+    if (sectionId) {
+      this.id = sectionId;
+    } else {
+      this.removeAttribute('id');
+    }
+
     const section = document.createElement('section');
-    section.className = 'timeline';
+    section.className = `timeline timeline--${alignment}`;
 
     const list = document.createElement('ol');
     list.className = 'timeline__list';
 
     const items = resolveItems(this.data);
-    this.#animatedItems = renderTimelineItems(list, items);
+    this.#animatedItems = renderTimelineItems(list, items, alignment);
 
     section.appendChild(list);
     root.appendChild(section);
@@ -278,6 +332,6 @@ class TimelineSection extends BaseComponent {
   }
 }
 
-customElements.define('timeline-section', TimelineSection);
+customElements.define("timeline-section", TimelineSection);
 
 export default TimelineSection;

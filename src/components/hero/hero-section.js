@@ -1,16 +1,5 @@
-/**
- * Expected data shape:
- * {
- *   title?: string,
- *   subtitle?: string,
- *   theme?: string,
- *   backgroundAsset?: string,
- *   media?: { type: 'image' | 'video', src: string, alt?: string }
- * }
- */
 import gsap from 'gsap';
 import BaseComponent from '../../core/BaseComponent.js';
-import { getTheme } from '../../core/themes.js';
 import heroStyles from './hero.scss?inline';
 
 
@@ -108,9 +97,7 @@ class HeroSection extends BaseComponent {
   }
 
   connectedCallback() {
-    if (!this.shadowRoot) {
-      this.attachShadow({ mode: 'open' });
-    }
+    super.connectedCallback();
     this.#mountViewportObserver();
   }
 
@@ -161,12 +148,8 @@ class HeroSection extends BaseComponent {
     const root = this.shadowRoot;
     root.replaceChildren();
 
-    const theme = getTheme(typeof this.data?.theme === 'string' ? this.data.theme : '');
     const style = document.createElement('style');
     style.textContent = `
-      :host {
-        ${buildThemeVariables(theme)}
-      }
       ${heroStyles}
     `;
     root.appendChild(style);

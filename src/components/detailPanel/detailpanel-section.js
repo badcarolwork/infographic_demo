@@ -1,31 +1,19 @@
-/**
- * Expected data shape:
- * Array<{ id, icon, title, summary, fullContent, media? }>
- * or {
- *   title?: string,
- *   description?: string,
- *   items?: array,
- *   details?: array,
- *   detailPanel?: array,
- *   theme?: string
- * }
- */
 import gsap from 'gsap';
 import BaseComponent from '../../core/BaseComponent.js';
-import { getTheme } from '../../core/themes.js';
+import { resolveSectionId } from '../../utils/resolveSectionId.js';
 import detailPanelStyles from './detailpanel.scss?inline';
 
 /**
  * @param {unknown} data
- * @returns {{ title: string, description: string, items: object[], theme: string }}
+ * @returns {{ title: string, description: string, items: object[] }}
  */
 function resolvePanelData(data) {
   if (!data) {
-    return { title: '', description: '', items: [], theme: '' };
+    return { title: '', description: '', items: []};
   }
 
   if (Array.isArray(data)) {
-    return { title: '', description: '', items: data, theme: '' };
+    return { title: '', description: '', items: data};
   }
 
   if (typeof data === 'object') {
@@ -40,22 +28,14 @@ function resolvePanelData(data) {
       title: typeof record.title === 'string' ? record.title : '',
       description: typeof record.description === 'string' ? record.description : '',
       items,
-      theme: typeof record.theme === 'string' ? record.theme : '',
     };
   }
 
-  return { title: '', description: '', items: [], theme: '' };
+  return { title: '', description: '', items: []};
 }
-
 /**
- * @param {Record<string, string>} theme
  * @returns {string}
  */
-function buildThemeVariables(theme) {
-  return Object.entries(theme)
-    .map(([name, value]) => `${name}: ${value};`)
-    .join('\n    ');
-}
 
 /**
  * @param {Record<string, unknown> | undefined} item
@@ -85,31 +65,16 @@ function resolveItemMedia(item) {
 }
 
 /**
- * @param {HTMLElement} container
- * @param {{ type: 'image' | 'video', src: string, alt: string, poster?: string }} source
- * @param {string} className
+ * @param {HTMLElement} card
+ * @param {{ src: string, alt: string }} source
  */
-function renderMedia(container, source, className) {
-  if (source.type === 'video') {
-    const video = document.createElement('video');
-    video.className = className;
-    video.src = source.src;
-    if (source.poster) {
-      video.poster = source.poster;
-    }
-    video.controls = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.setAttribute('aria-label', source.alt);
-    container.appendChild(video);
-    return;
-  }
-
-  const img = document.createElement('img');
-  img.className = className;
-  img.src = source.src;
-  img.alt = source.alt;
-  container.appendChild(img);
+function renderCardIcon(card, source) {
+  const icon = document.createElement('div');
+  icon.className = 'detail-panel__icon';
+  icon.setAttribute('role', 'img');
+  icon.setAttribute('aria-label', source.alt);
+  icon.style.setProperty('--icon-url', `url("${source.src}")`);
+  card.appendChild(icon);
 }
 
 /**
@@ -120,13 +85,18 @@ function runSectionAnimation(targets) {
     return;
   }
 
-  gsap.from(targets, {
-    opacity: 0,
-    y: 30,
-    duration: 0.8,
-    ease: 'power2.out',
-    stagger: 0.12,
-  });
+  gsap.fromTo(
+    targets,
+    { opacity: 0, y: 20 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      stagger: 0.12,
+      clearProps: 'transform',
+    },
+  );
 }
 
 /**
@@ -194,9 +164,7 @@ class DetailPanelSection extends BaseComponent {
   }
 
   connectedCallback() {
-    if (!this.shadowRoot) {
-      this.attachShadow({ mode: 'open' });
-    }
+    super.connectedCallback();
     this.#mountViewportObserver();
   }
 
@@ -323,7 +291,6 @@ class DetailPanelSection extends BaseComponent {
     const backdrop = card.querySelector('.detail-panel__backdrop');
     const popupTitle = card.querySelector('.detail-panel__popup-title');
     const popupContent = card.querySelector('.detail-panel__full-content');
-    const popupMediaHost = card.querySelector('.detail-panel__popup-media');
     const closeButton = card.querySelector('.detail-panel__popup-close');
 
     if (
@@ -331,7 +298,6 @@ class DetailPanelSection extends BaseComponent {
       !(backdrop instanceof HTMLElement) ||
       !(popupTitle instanceof HTMLElement) ||
       !(popupContent instanceof HTMLElement) ||
-      !(popupMediaHost instanceof HTMLElement) ||
       !(closeButton instanceof HTMLButtonElement)
     ) {
       return;
@@ -344,11 +310,6 @@ class DetailPanelSection extends BaseComponent {
     popupTitle.textContent = String(item.title ?? '');
     popupContent.textContent = String(item.fullContent ?? '');
 
-    popupMediaHost.replaceChildren();
-    const media = resolveItemMedia(item);
-    if (media) {
-      renderMedia(popupMediaHost, media, 'detail-panel__popup-icon');
-    }
 
     card.classList.add('detail-panel__card--open');
     backdrop.hidden = false;
@@ -392,10 +353,6 @@ class DetailPanelSection extends BaseComponent {
     closeButton.addEventListener('click', () => this.#closeActivePopup());
     popup.appendChild(closeButton);
 
-    const popupMediaHost = document.createElement('div');
-    popupMediaHost.className = 'detail-panel__popup-media';
-    popup.appendChild(popupMediaHost);
-
     const popupTitle = document.createElement('h3');
     popupTitle.className = 'detail-panel__popup-title';
     popupTitle.id = `${item.id}-dialog-title`;
@@ -408,27 +365,32 @@ class DetailPanelSection extends BaseComponent {
 
     card.appendChild(popup);
 
+    const body = document.createElement('div');
+    body.className = 'detail-panel__body';
+
     const media = resolveItemMedia(item);
-    if (media) {
-      renderMedia(card, media, 'detail-panel__icon');
+    if (media?.type === 'image') {
+      renderCardIcon(card, media);
     }
 
     const title = document.createElement('h3');
     title.className = 'detail-panel__title';
     title.textContent = String(item.title);
-    card.appendChild(title);
+    body.appendChild(title);
 
     const summary = document.createElement('p');
     summary.className = 'detail-panel__summary';
     summary.textContent = String(item.summary);
-    card.appendChild(summary);
+    body.appendChild(summary);
 
     const cta = document.createElement('button');
     cta.type = 'button';
     cta.className = 'detail-panel__cta';
     cta.textContent = 'Learn More';
     cta.addEventListener('click', () => this.#openPopup(card, item, cta));
-    card.appendChild(cta);
+    body.appendChild(cta);
+
+    card.appendChild(body);
 
     return card;
   }
@@ -443,21 +405,22 @@ class DetailPanelSection extends BaseComponent {
     const root = this.shadowRoot;
     root.replaceChildren();
 
-    const { title, description, items, theme: themeName } = resolvePanelData(this.data);
-    const theme = getTheme(themeName);
+    const { title, description, items} = resolvePanelData(this.data);
 
     const style = document.createElement('style');
     style.textContent = `
-      :host {
-        ${buildThemeVariables(theme)}
-      }
       ${detailPanelStyles}
     `;
     root.appendChild(style);
 
     const section = document.createElement('section');
     section.className = 'detail-panel';
-    section.id = 'details';
+    const sectionId = resolveSectionId(this.data);
+    if (sectionId) {
+      this.id = sectionId;
+    } else {
+      this.removeAttribute('id');
+    }
 
     this.#animatedTargets = [];
 
@@ -467,7 +430,7 @@ class DetailPanelSection extends BaseComponent {
 
       if (title) {
         const heading = document.createElement('h2');
-        heading.className = 'detail-panel__heading';
+        heading.className = 'detail-panel__section-title';
         heading.textContent = title;
         header.appendChild(heading);
         this.#animatedTargets.push(heading);
@@ -491,7 +454,8 @@ class DetailPanelSection extends BaseComponent {
       const card = this.#createCard(item);
       if (card) {
         grid.appendChild(card);
-        this.#animatedTargets.push(card);
+        const body = card.querySelector('.detail-panel__body');
+        this.#animatedTargets.push(body instanceof HTMLElement ? body : card);
       }
     }
 

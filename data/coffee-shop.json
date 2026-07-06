@@ -1,0 +1,217 @@
+{
+  "meta": {
+    "title": "From Bean to Brew",
+    "subtitle": "Discover how carefully sourced coffee beans become the perfect cup through roasting, grinding, and brewing.",
+    "theme": "light-warm",
+    "timeline": {
+      "alignment": "horizontal"
+    }
+  },
+  "nav": [
+    {
+      "label": "Bean Journey",
+      "target": "timeline-origin"
+    },
+    {
+      "label": "Bean Collection",
+      "target": "detail-brazil"
+    },
+    {
+      "label": "Brew Guide",
+      "target": "comparison"
+    },
+    {
+      "label": "FAQs",
+      "target": "faq"
+    }
+  ],
+  "hero": {
+    "title": "From Bean to Brew",
+    "subtitle": "Follow the journey of carefully sourced coffee beans—from world-renowned farms to the perfect cup brewed with precision and passion.",
+    "backgroundAsset": "assets/coffeebean/coffee-hero.jpg",
+    "media": {
+      "type": "jpg",
+      "src": "assets/coffeebean/coffee-hero.jpg",
+      "alt": "Freshly brewed specialty coffee"
+    }
+  },
+  "timeline": [
+    {
+      "id": "timeline-origin",
+      "label": {
+        "text": "Step 1",
+        "type": "img",
+        "src": "assets/coffeebean/timeline1.webp"
+      },
+      "title": "Coffee Beans Harvested",
+      "description": "Premium Arabica beans are carefully handpicked from high-altitude farms in Brazil for their balanced sweetness and rich flavour."
+    },
+    {
+      "id": "timeline-import",
+      "label": {
+        "text": "Step 2",
+        "type": "img",
+        "src": "assets/coffeebean/timeline2.webp"
+      },
+      "title": "Beans Arrive at the Roastery",
+      "description": "Fresh green beans are inspected, sorted, and prepared before entering the roasting process."
+    },
+    {
+      "id": "timeline-roasting",
+      "label": {
+        "text": "Step 3",
+        "type": "img",
+        "src": "assets/coffeebean/timeline3.webp"
+      },
+      "title": "Roasted to Perfection",
+      "description": "The beans are roasted at carefully controlled temperatures to unlock their natural aroma and flavour profile."
+    },
+    {
+      "id": "timeline-grinding",
+      "label": {
+        "text": "Step 4",
+        "type": "img",
+        "src": "assets/coffeebean/timeline4.webp"
+      },
+      "title": "Ground for Brewing",
+      "description": "Freshly roasted beans are ground to match the selected brewing method for optimal extraction."
+    },
+    {
+      "id": "timeline-brewing",
+      "label": {
+        "text": "Step 5",
+        "type": "img",
+        "src": "assets/coffeebean/timeline5.webp"
+      },
+      "title": "Brew the Perfect Cup",
+      "description": "Hot or cold brewing extracts the coffee's unique flavours, creating a smooth and aromatic cup ready to enjoy."
+    }
+  ],
+  "details": [
+    {
+      "id": "detail-brazil",
+      "icon": "assets/coffeebean/detail1.webp",
+      "title": "Brazil Santos",
+      "summary": "Smooth, nutty and chocolatey. A balanced coffee that works beautifully for espresso and milk-based drinks.",
+      "fullContent": "Brazil Santos is one of the world's most popular Arabica coffees. It offers low acidity, a creamy body and sweet notes of chocolate and roasted nuts, making it an excellent everyday coffee."
+    },
+    {
+      "id": "detail-ethiopia",
+      "icon": "assets/coffeebean/detail2.webp",
+      "title": "Ethiopia Yirgacheffe",
+      "summary": "Bright floral aromas with citrus and berry notes. Perfect for pour-over coffee lovers.",
+      "fullContent": "Grown at high altitudes, Ethiopian Yirgacheffe beans produce delicate floral aromas with hints of jasmine, lemon and berries. Its vibrant acidity makes every cup refreshing and complex."
+    },
+    {
+      "id": "detail-colombia",
+      "icon": "assets/coffeebean/detail3.webp",
+      "title": "Colombia Supremo",
+      "summary": "Balanced sweetness with caramel and red fruit flavours. A versatile choice for any brew method.",
+      "fullContent": "Colombia Supremo beans are known for their smooth body and balanced flavour. Expect caramel sweetness, subtle fruit notes and a clean finish that's enjoyable from espresso to filter coffee."
+    },
+    {
+      "id": "detail-guatemala",
+      "icon": "assets/coffeebean/detail4.webp",
+      "title": "Guatemala Antigua",
+      "summary": "Rich cocoa flavours with gentle spice and a full-bodied finish.",
+      "fullContent": "Cultivated in volcanic soil, Guatemala Antigua beans develop deep cocoa notes with hints of spice and brown sugar. Their rich body makes them ideal for bold black coffee."
+    }
+  ],
+  "comparison": {
+    "title": "Hot Brew vs Cold Brew",
+    "description": "Slide to compare two popular brewing methods and discover which coffee suits your taste.",
+
+    "before": {
+      "label": "Hot Brew",
+      "media": {
+        "type": "image",
+        "src": "assets/coffeebean/compare-hot.jpg",
+        "alt": "Hot Brew Coffee"
+      },
+      "metrics": [
+        {
+          "label": "Water Temp",
+          "value": "90–96°C"
+        },
+        {
+          "label": "Brew Time",
+          "value": "3–5 mins"
+        },
+        {
+          "label": "Acidity",
+          "value": "Medium"
+        },
+        {
+          "label": "Body",
+          "value": "Rich"
+        }
+      ],
+      "highlights": [
+        "Bold aroma",
+        "Rich flavour",
+        "Best for espresso lovers",
+        "Perfect on cool mornings"
+      ]
+    },
+
+    "after": {
+      "label": "Cold Brew",
+      "media": {
+        "type": "image",
+        "src": "assets/coffeebean/compare-cold.jpg",
+        "alt": "Cold Brew Coffee"
+      },
+      "metrics": [
+        {
+          "label": "Water Temp",
+          "value": "Cold"
+        },
+        {
+          "label": "Brew Time",
+          "value": "12–18 hrs"
+        },
+        {
+          "label": "Acidity",
+          "value": "Low"
+        },
+        {
+          "label": "Body",
+          "value": "Smooth"
+        }
+      ],
+      "highlights": [
+        "Naturally sweeter",
+        "Low bitterness",
+        "Refreshing taste",
+        "Great for summer"
+      ]
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "description": "Learn more about coffee beans, brewing methods, and how to enjoy the perfect cup.",
+    "allowMultipleOpen": true,
+    "items": [
+      {
+        "id": "faq-arabica",
+        "question": "Why do coffee beans from different countries taste different?",
+        "answer": "Climate, altitude, soil, and processing methods all influence a coffee bean's flavour. That's why beans from Brazil, Ethiopia, Colombia, and Guatemala each have their own unique taste profile."
+      },
+      {
+        "id": "faq-freshness",
+        "question": "Should coffee beans be ground fresh?",
+        "answer": "Yes. Grinding coffee just before brewing preserves its natural aroma and essential oils, resulting in a fresher and more flavourful cup."
+      },
+      {
+        "id": "faq-temperature",
+        "question": "What is the ideal water temperature for brewing coffee?",
+        "answer": "Most specialty coffee is best brewed between 90°C and 96°C. Water that's too hot can create bitterness, while cooler water may under-extract the coffee."
+      },
+      {
+        "id": "faq-storage",
+        "question": "How should I store coffee beans?",
+        "answer": "Keep coffee beans in an airtight container away from heat, light, and moisture. Avoid storing them in the refrigerator to preserve their freshness and flavour."
+      }
+    ]
+  }
+}

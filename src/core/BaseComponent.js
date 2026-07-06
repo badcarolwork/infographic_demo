@@ -17,6 +17,8 @@
  * HeroSection.prototype.animate.cleanup = () => { /* kill tweens *\/ };
  * customElements.define('hero-section', HeroSection);
  */
+import { adoptThemeTypography } from './themeTypography.js';
+
 class BaseComponent extends HTMLElement {
   #data;
 
@@ -33,6 +35,7 @@ class BaseComponent extends HTMLElement {
     if (!this.shadowRoot) {
       this.attachShadow({ mode: 'open' });
     }
+    adoptThemeTypography(this.shadowRoot);
   }
 
   disconnectedCallback() {

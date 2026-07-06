@@ -1,22 +1,14 @@
-/**
- * Expected data shape:
- * {
- *   title?: string,
- *   description?: string,
- *   before?: { label, media, metrics?, highlights? },
- *   after?: { label, media, metrics?, highlights? },
- *   theme?: string
- * }
- */
 import gsap from 'gsap';
 import BaseComponent from '../../core/BaseComponent.js';
-import { getTheme } from '../../core/themes.js';
+import { resolveSectionId } from '../../utils/resolveSectionId.js';
 import comparisonStyles from './comparison.scss?inline';
 
 const SLIDER_MIN = 10;
 const SLIDER_MAX = 90;
 const SLIDER_DEFAULT = 50;
 const SLIDER_STEP = 2;
+const METRICS_FADE_OUT = 0.2;
+const METRICS_FADE_IN = 0.25;
 
 /**
  * @param {unknown} data
@@ -25,12 +17,11 @@ const SLIDER_STEP = 2;
  *   description: string,
  *   before: object | null,
  *   after: object | null,
- *   theme: string
  * }}
  */
 function resolveComparisonData(data) {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    return { title: '', description: '', before: null, after: null, theme: '' };
+    return { title: '', description: '', before: null, after: null};
   }
 
   const record = /** @type {Record<string, unknown>} */ (data);
@@ -40,19 +31,12 @@ function resolveComparisonData(data) {
     description: typeof record.description === 'string' ? record.description : '',
     before: record.before && typeof record.before === 'object' ? record.before : null,
     after: record.after && typeof record.after === 'object' ? record.after : null,
-    theme: typeof record.theme === 'string' ? record.theme : '',
   };
 }
 
 /**
- * @param {Record<string, string>} theme
  * @returns {string}
  */
-function buildThemeVariables(theme) {
-  return Object.entries(theme)
-    .map(([name, value]) => `${name}: ${value};`)
-    .join('\n    ');
-}
 
 /**
  * @param {unknown} media
@@ -176,6 +160,24 @@ class ComparisonSection extends BaseComponent {
   /** @type {HTMLElement | null} */
   #details = null;
 
+  /** @type {HTMLElement | null} */
+  #metricsGrid = null;
+
+  /** @type {HTMLElement | null} */
+  #highlightsEl = null;
+
+  /** @type {object | null} */
+  #beforeSide = null;
+
+  /** @type {object | null} */
+  #afterSide = null;
+
+  /** @type {'before' | 'after' | null} */
+  #activeSide = null;
+
+  /** @type {boolean} */
+  #isMetricsTransitioning = false;
+
   /** @type {((event: PointerEvent) => void) | null} */
   #onPointerMove = null;
 
@@ -188,9 +190,7 @@ class ComparisonSection extends BaseComponent {
   }
 
   connectedCallback() {
-    if (!this.shadowRoot) {
-      this.attachShadow({ mode: 'open' });
-    }
+    super.connectedCallback();
     this.#mountViewportObserver();
   }
 
@@ -211,10 +211,21 @@ class ComparisonSection extends BaseComponent {
       gsap.killTweensOf(this.#metricTargets);
     }
 
+    const detailContainers = this.#detailContainers();
+    if (detailContainers.length) {
+      gsap.killTweensOf(detailContainers);
+    }
+
     this.#sectionTargets = [];
     this.#metricTargets = [];
     this.#hasAnimated = false;
     this.#metricsRevealed = false;
+    this.#activeSide = null;
+    this.#isMetricsTransitioning = false;
+  }
+
+  #detailContainers() {
+    return [this.#metricsGrid, this.#highlightsEl].filter(Boolean);
   }
 
   #mountViewportObserver() {
@@ -259,19 +270,136 @@ class ComparisonSection extends BaseComponent {
     this.#handle.style.left = `${this.#position}%`;
     this.#handle.setAttribute('aria-valuenow', String(Math.round(this.#position)));
 
-    if (!this.#metricsRevealed && this.#afterVisiblePercent() > 50) {
-      this.#revealAfterDetails();
-    }
+    this.#syncDetailsToPosition();
   }
 
-  #revealAfterDetails() {
-    if (!this.#details || this.#metricsRevealed) {
+  #populateDetails(side) {
+    if (!this.#metricsGrid || !this.#highlightsEl) {
       return;
     }
 
-    this.#metricsRevealed = true;
+    this.#metricsGrid.replaceChildren();
+    this.#highlightsEl.replaceChildren();
+    this.#metricTargets = [];
+
+    const metrics = side?.metrics;
+    if (Array.isArray(metrics)) {
+      for (const metric of metrics) {
+        if (!metric?.label || metric?.value === undefined) {
+          continue;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'comparison__metric-card';
+
+        const label = document.createElement('span');
+        label.className = 'comparison__metric-label';
+        label.textContent = String(metric.label);
+
+        const value = document.createElement('strong');
+        value.className = 'comparison__metric-value';
+        value.textContent = String(metric.value);
+
+        card.appendChild(label);
+        card.appendChild(value);
+        this.#metricsGrid.appendChild(card);
+        this.#metricTargets.push(card);
+      }
+    }
+
+    const highlights = side?.highlights;
+    if (Array.isArray(highlights)) {
+      for (const highlight of highlights) {
+        if (typeof highlight !== 'string' || !highlight) {
+          continue;
+        }
+
+        const pill = document.createElement('span');
+        pill.className = 'comparison__highlight';
+        pill.textContent = highlight;
+        this.#highlightsEl.appendChild(pill);
+        this.#metricTargets.push(pill);
+      }
+    }
+  }
+
+  #applyMetricsForCurrentPosition() {
+    const showingAfter = this.#afterVisiblePercent() > 50;
+    const nextSide = showingAfter ? 'after' : 'before';
+    const sideData = showingAfter ? this.#afterSide : this.#beforeSide;
+
+    this.#populateDetails(sideData);
+    this.#activeSide = nextSide;
+  }
+
+  #fadeSwitchMetrics() {
+    const containers = this.#detailContainers();
+    if (!containers.length) {
+      return;
+    }
+
+    this.#isMetricsTransitioning = true;
+    gsap.killTweensOf(containers);
+
+    if (this.#metricTargets.length) {
+      gsap.killTweensOf(this.#metricTargets);
+    }
+
+    gsap.to(containers, {
+      opacity: 0,
+      duration: METRICS_FADE_OUT,
+      ease: 'power2.out',
+      onComplete: () => {
+        this.#applyMetricsForCurrentPosition();
+
+        gsap.to(containers, {
+          opacity: 1,
+          duration: METRICS_FADE_IN,
+          ease: 'power2.out',
+          onComplete: () => {
+            this.#isMetricsTransitioning = false;
+
+            const showingAfter = this.#afterVisiblePercent() > 50;
+            const expectedSide = showingAfter ? 'after' : 'before';
+            if (this.#activeSide !== expectedSide) {
+              this.#syncDetailsToPosition();
+            }
+          },
+        });
+      },
+    });
+  }
+
+  #syncDetailsToPosition() {
+    if (!this.#details || !this.#beforeSide || !this.#afterSide) {
+      return;
+    }
+
+    const showingAfter = this.#afterVisiblePercent() > 50;
+    const nextSide = showingAfter ? 'after' : 'before';
+
+    if (this.#activeSide === nextSide && !this.#details.hidden && !this.#isMetricsTransitioning) {
+      return;
+    }
+
     this.#details.hidden = false;
-    runMetricsAnimation(this.#metricTargets);
+
+    if (!this.#metricsRevealed) {
+      this.#metricsRevealed = true;
+      this.#applyMetricsForCurrentPosition();
+      runMetricsAnimation(this.#metricTargets);
+      return;
+    }
+
+    if (this.#isMetricsTransitioning) {
+      return;
+    }
+
+    if (this.#activeSide === nextSide) {
+      return;
+    }
+
+    this.#fadeSwitchMetrics();
   }
 
   #setPositionFromClientX(clientX) {
@@ -359,62 +487,6 @@ class ComparisonSection extends BaseComponent {
   #nudgePosition(delta) {
     this.#position = this.#clampPosition(this.#position + delta);
     this.#updateSliderVisuals();
-  }
-
-  #createMetricsGrid(metrics) {
-    const grid = document.createElement('div');
-    grid.className = 'comparison__metrics';
-
-    if (!Array.isArray(metrics)) {
-      return grid;
-    }
-
-    for (const metric of metrics) {
-      if (!metric?.label || metric?.value === undefined) {
-        continue;
-      }
-
-      const card = document.createElement('div');
-      card.className = 'comparison__metric-card';
-
-      const label = document.createElement('span');
-      label.className = 'comparison__metric-label';
-      label.textContent = String(metric.label);
-
-      const value = document.createElement('strong');
-      value.className = 'comparison__metric-value';
-      value.textContent = String(metric.value);
-
-      card.appendChild(label);
-      card.appendChild(value);
-      grid.appendChild(card);
-      this.#metricTargets.push(card);
-    }
-
-    return grid;
-  }
-
-  #createHighlights(highlights) {
-    const container = document.createElement('div');
-    container.className = 'comparison__highlights';
-
-    if (!Array.isArray(highlights)) {
-      return container;
-    }
-
-    for (const highlight of highlights) {
-      if (typeof highlight !== 'string' || !highlight) {
-        continue;
-      }
-
-      const pill = document.createElement('span');
-      pill.className = 'comparison__highlight';
-      pill.textContent = highlight;
-      container.appendChild(pill);
-      this.#metricTargets.push(pill);
-    }
-
-    return container;
   }
 
   #createViewer(before, after) {
@@ -515,21 +587,27 @@ class ComparisonSection extends BaseComponent {
     const root = this.shadowRoot;
     root.replaceChildren();
 
-    const { title, description, before, after, theme: themeName } = resolveComparisonData(this.data);
-    const theme = getTheme(themeName);
+    const { title, description, before, after } = resolveComparisonData(this.data);
+
+    this.#beforeSide = before;
+    this.#afterSide = after;
+    this.#activeSide = null;
 
     const style = document.createElement('style');
     style.textContent = `
-      :host {
-        ${buildThemeVariables(theme)}
-      }
       ${comparisonStyles}
     `;
     root.appendChild(style);
 
+    const sectionId = resolveSectionId(this.data);
+    if (sectionId) {
+      this.id = sectionId;
+    } else {
+      this.removeAttribute('id');
+    }
+
     const section = document.createElement('section');
     section.className = 'comparison';
-    section.id = 'comparison';
 
     if (title || description) {
       const header = document.createElement('header');
@@ -537,7 +615,7 @@ class ComparisonSection extends BaseComponent {
 
       if (title) {
         const heading = document.createElement('h2');
-        heading.className = 'comparison__heading';
+        heading.className = 'comparison__title';
         heading.textContent = title;
         header.appendChild(heading);
         this.#sectionTargets.push(heading);
@@ -565,8 +643,13 @@ class ComparisonSection extends BaseComponent {
     details.hidden = true;
     this.#details = details;
 
-    details.appendChild(this.#createMetricsGrid(after?.metrics));
-    details.appendChild(this.#createHighlights(after?.highlights));
+    this.#metricsGrid = document.createElement('div');
+    this.#metricsGrid.className = 'comparison__metrics';
+    details.appendChild(this.#metricsGrid);
+
+    this.#highlightsEl = document.createElement('div');
+    this.#highlightsEl.className = 'comparison__highlights';
+    details.appendChild(this.#highlightsEl);
 
     section.appendChild(details);
     root.appendChild(section);
