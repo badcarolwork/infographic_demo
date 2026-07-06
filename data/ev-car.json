@@ -20,7 +20,7 @@
     "backgroundAsset": "assets/evcar/herobg.jpg",
     "media": {
       "type": "jpg",
-      "src": "assets/evcar/herobg.jpg",
+      "src": "assets/evcar/herobg.webp",
       "alt": "How an Electric Vehicle Works"
     }
   },

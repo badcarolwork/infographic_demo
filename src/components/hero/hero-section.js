@@ -1,68 +1,45 @@
 import gsap from 'gsap';
 import BaseComponent from '../../core/BaseComponent.js';
+import { resolveSectionId } from '../../utils/resolveSectionId.js';
+import { playHeroAnimation } from './hero-animate.js';
 import heroStyles from './hero.scss?inline';
 
+const HERO_SCENE_ASSETS = {
+  car: 'assets/evcar/hero-car.webp',
+  charger: 'assets/evcar/hero-charger.webp',
+  wire: 'assets/evcar/hero-wire.webp',
+};
 
 /**
- * @param {Record<string, unknown> | undefined} data
- * @returns {{ type: 'image' | 'video', src: string, alt: string } | null}
+ * @param {HTMLElement} section
  */
-function resolveMedia(data) {
-  const media = data?.media;
-  if (media && typeof media === 'object' && media.type && media.src) {
-    return {
-      type: media.type === 'video' ? 'video' : 'image',
-      src: String(media.src),
-      alt: String(media.alt ?? data?.title ?? ''),
-    };
-  }
+function renderHeroScene(section) {
+  const scene = document.createElement('div');
+  scene.className = 'hero__scene';
+  scene.setAttribute('aria-hidden', 'true');
 
-  const backgroundAsset = data?.backgroundAsset;
-  if (typeof backgroundAsset === 'string' && backgroundAsset) {
-    const type = /\.(mp4|webm|ogg)(\?.*)?$/i.test(backgroundAsset) ? 'video' : 'image';
-    return {
-      type,
-      src: backgroundAsset,
-      alt: String(data?.title ?? ''),
-    };
-  }
+  const charger = document.createElement('img');
+  charger.className = 'hero__media-charger';
+  charger.src = HERO_SCENE_ASSETS.charger;
+  charger.alt = '';
+  charger.decoding = 'async';
 
-  return null;
-}
+  const car = document.createElement('img');
+  car.className = 'hero__media-car';
+  car.src = HERO_SCENE_ASSETS.car;
+  car.alt = '';
+  car.decoding = 'async';
 
-/**
- * @param {Record<string, string>} theme
- * @returns {string}
- */
-function buildThemeVariables(theme) {
-  return Object.entries(theme)
-    .map(([name, value]) => `${name}: ${value};`)
-    .join('\n    ');
-}
+  const wire = document.createElement('img');
+  wire.className = 'hero__media-wire';
+  wire.src = HERO_SCENE_ASSETS.wire;
+  wire.alt = '';
+  wire.decoding = 'async';
 
-/**
- * @param {HTMLElement} container
- * @param {{ type: 'image' | 'video', src: string, alt: string }} source
- */
-function renderBackgroundMedia(container, source) {
-  if (source.type === 'video') {
-    const video = document.createElement('video');
-    video.className = 'hero__media';
-    video.src = source.src;
-    video.autoplay = true;
-    video.muted = true;
-    video.loop = true;
-    video.playsInline = true;
-    video.setAttribute('aria-hidden', 'true');
-    container.appendChild(video);
-    return;
-  }
-
-  const img = document.createElement('img');
-  img.className = 'hero__media';
-  img.src = source.src;
-  img.alt = source.alt;
-  container.appendChild(img);
+  scene.appendChild(charger);
+  scene.appendChild(car);
+  scene.appendChild(wire);
+  section.appendChild(scene);
 }
 
 /**
@@ -91,6 +68,9 @@ class HeroSection extends BaseComponent {
   /** @type {HTMLElement[]} */
   #animatedElements = [];
 
+  /** @type {(() => void) | null} */
+  #sceneAnimationCleanup = null;
+
   constructor() {
     super();
     this.animate.cleanup = () => this.#cleanupAnimation();
@@ -105,6 +85,16 @@ class HeroSection extends BaseComponent {
     this.#viewportObserver?.disconnect();
     this.#viewportObserver = null;
 
+    this.#sceneAnimationCleanup?.();
+    this.#sceneAnimationCleanup = null;
+
+    const sceneTargets = this.shadowRoot?.querySelectorAll(
+      '.hero__media-car, .hero__media-charger, .hero__media-wire',
+    );
+    if (sceneTargets?.length) {
+      gsap.killTweensOf(sceneTargets);
+    }
+
     if (this.#animatedElements.length) {
       gsap.killTweensOf(this.#animatedElements);
     }
@@ -113,11 +103,22 @@ class HeroSection extends BaseComponent {
     this.#hasAnimated = false;
   }
 
+  #runEntranceAnimations() {
+    const root = this.shadowRoot;
+    if (!root) {
+      return;
+    }
+
+    this.#sceneAnimationCleanup?.();
+    this.#sceneAnimationCleanup = playHeroAnimation(root).cleanup;
+    runHeroTextAnimation(this.#animatedElements);
+  }
+
   #mountViewportObserver() {
     this.#viewportObserver?.disconnect();
 
-    const content = this.shadowRoot?.querySelector('.hero__content');
-    if (!content) {
+    const hero = this.shadowRoot?.querySelector('.hero');
+    if (!hero) {
       return;
     }
 
@@ -126,16 +127,16 @@ class HeroSection extends BaseComponent {
         for (const entry of entries) {
           if (entry.isIntersecting && !this.#hasAnimated) {
             this.#hasAnimated = true;
-            runHeroTextAnimation(this.#animatedElements);
+            this.#runEntranceAnimations();
             this.#viewportObserver?.disconnect();
             this.#viewportObserver = null;
           }
         }
       },
-      { threshold: 0.2 },
+      { threshold: 0.5 },
     );
 
-    this.#viewportObserver.observe(content);
+    this.#viewportObserver.observe(hero);
   }
 
   render() {
@@ -149,23 +150,25 @@ class HeroSection extends BaseComponent {
     root.replaceChildren();
 
     const style = document.createElement('style');
-    style.textContent = `
-      ${heroStyles}
-    `;
+    style.textContent = heroStyles;
     root.appendChild(style);
+
+    const sectionId = resolveSectionId(this.data);
+    if (sectionId) {
+      this.id = sectionId;
+    } else {
+      this.removeAttribute('id');
+    }
 
     const section = document.createElement('section');
     section.className = 'hero';
 
-    const media = resolveMedia(this.data);
-    if (media) {
-      renderBackgroundMedia(section, media);
-    }
+    renderHeroScene(section);
 
-    const overlay = document.createElement('div');
-    overlay.className = 'hero__overlay';
-    overlay.setAttribute('aria-hidden', 'true');
-    section.appendChild(overlay);
+    // const overlay = document.createElement('div');
+    // overlay.className = 'hero__overlay';
+    // overlay.setAttribute('aria-hidden', 'true');
+    // section.appendChild(overlay);
 
     const content = document.createElement('div');
     content.className = 'hero__content';
@@ -197,9 +200,12 @@ class HeroSection extends BaseComponent {
   }
 
   animate() {
-    if (this.isConnected && this.#animatedElements.length) {
-      runHeroTextAnimation(this.#animatedElements);
+    if (!this.isConnected || this.#hasAnimated) {
+      return;
     }
+
+    this.#hasAnimated = true;
+    this.#runEntranceAnimations();
   }
 }
 
